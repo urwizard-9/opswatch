@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from app.core.config import settings
 from app.database import Base, engine
+from app.routers import servers
 from app.schemas import HealthResponse
 
 # DB 테이블 생성
@@ -15,6 +16,9 @@ app = FastAPI(
     version=settings.APP_VERSION,
     description="배포 서버 통신 상태 모니터링 및 장애 이력관리 시스템",
 )
+
+# 라우터 등록
+app.include_router(servers.router)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["Operation"])
