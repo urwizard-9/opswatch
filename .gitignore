@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment Variables
+.env
+
+# Database
+*.db
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
+
+# pytest
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Logs
+*.log
+
+# Docker
+docker-compose.override.yml
+
+# Gemini/AI Tool
+.gemini/
+
+# 프로젝트 관리 문서 (로컬 전용)
+PROJECT_CONTEXT.md
+ARCHITECTURE.md
+DECISIONS.md
+TASK_LOG.md
+TODO.md
+PROMPT_TEMPLATE.md
+PROJECT_TEMPLATE.md
+implementation_plan.md
