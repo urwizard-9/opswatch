@@ -22,7 +22,9 @@ jobs:
           cache: "pip"
 
       - name: 의존성 설치
-        run: pip install -r requirements.txt
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: pip-audit 보안 감사
         run: pip-audit --strict --desc
