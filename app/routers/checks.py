@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import CheckResult, Server
 from app.schemas import CheckResultResponse, CheckRunAllResponse, CheckRunResponse
+from app.services.incident_service import create_incident_if_needed
 from app.services.monitor_service import check_server
 
 router = APIRouter(prefix="/checks", tags=["Checks"])
@@ -36,6 +37,10 @@ def run_check_single(server_id: int, db: Session = Depends(get_db)):
     )
     db.add(check_record)
     db.commit()
+
+    # DOWN이면 Incident 자동 생성
+    if result["status"] == "DOWN":
+        create_incident_if_needed(db, server.id, result["message"])
 
     return CheckRunResponse(
         server_id=server.id,
@@ -71,6 +76,10 @@ def run_check_all(db: Session = Depends(get_db)):
             checked_at=now,
         )
         db.add(check_record)
+
+        # DOWN이면 Incident 자동 생성
+        if result["status"] == "DOWN":
+            create_incident_if_needed(db, server.id, result["message"])
 
         results.append(
             CheckRunResponse(
