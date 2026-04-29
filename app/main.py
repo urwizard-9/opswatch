@@ -1,12 +1,16 @@
 """OpsWatch FastAPI 애플리케이션 진입점."""
 
+import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
 from app.core.config import settings
 from app.core.logging_config import get_logger, setup_logging
 from app.database import Base, engine
-from app.routers import checks, incidents, mock_targets, servers
+from app.routers import checks, incidents, metrics, mock_targets, servers
 from app.schemas import HealthResponse
+from app.services.scheduler import run_scheduled_checks
 
 # 로깅 초기화
 setup_logging()
@@ -16,11 +20,25 @@ logger = get_logger(__name__)
 Base.metadata.create_all(bind=engine)
 logger.info("APP_STARTED | %s v%s", settings.APP_NAME, settings.APP_VERSION)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """앱 시작/종료 시 실행되는 lifespan 이벤트."""
+    # 시작: 백그라운드 스케줄러 등록
+    task = asyncio.create_task(run_scheduled_checks())
+    logger.info("SCHEDULER_REGISTERED | interval=%ds", settings.CHECK_INTERVAL_SECONDS)
+    yield
+    # 종료: 스케줄러 정리
+    task.cancel()
+    logger.info("APP_SHUTDOWN")
+
+
 # FastAPI 인스턴스 생성
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
     description="배포 서버 통신 상태 모니터링 및 장애 이력관리 시스템",
+    lifespan=lifespan,
 )
 
 # 라우터 등록
@@ -28,6 +46,7 @@ app.include_router(servers.router)
 app.include_router(mock_targets.router)
 app.include_router(checks.router)
 app.include_router(incidents.router)
+app.include_router(metrics.router)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["Operation"])

@@ -9,6 +9,7 @@ import httpx
 
 from app.core.config import settings
 from app.core.logging_config import get_logger
+from app.routers.metrics import update_check_metrics
 
 logger = get_logger(__name__)
 
@@ -46,29 +47,37 @@ def check_server(url: str) -> dict:
             "message": message,
         }
         logger.info("SERVER_%s | url=%s | %dms | HTTP %d", status, url, elapsed_ms, response.status_code)
+        update_check_metrics(status, result["response_time_ms"])
         return result
 
     except httpx.TimeoutException:
         logger.warning("SERVER_DOWN | url=%s | Timeout (%d초 초과)", url, settings.CHECK_TIMEOUT_SECONDS)
-        return {
+        result = {
             "status": "DOWN",
             "status_code": None,
             "response_time_ms": None,
             "message": f"Timeout ({settings.CHECK_TIMEOUT_SECONDS}초 초과)",
         }
+        update_check_metrics("DOWN", None)
+        return result
     except httpx.ConnectError:
         logger.warning("SERVER_DOWN | url=%s | 연결 실패", url)
-        return {
+        result = {
             "status": "DOWN",
             "status_code": None,
             "response_time_ms": None,
             "message": "연결 실패 (서버 접근 불가)",
         }
+        update_check_metrics("DOWN", None)
+        return result
     except Exception as e:
         logger.exception("SERVER_CHECK_FAILED | url=%s | %s", url, e)
-        return {
+        result = {
             "status": "DOWN",
             "status_code": None,
             "response_time_ms": None,
             "message": f"점검 실패: {str(e)}",
         }
+        update_check_metrics("DOWN", None)
+        return result
+
