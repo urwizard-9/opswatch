@@ -7,7 +7,8 @@ from fastapi import FastAPI
 
 from app.core.config import settings
 from app.core.logging_config import get_logger, setup_logging
-from app.database import Base, engine
+import app.database as _db
+from app.database import Base
 from app.routers import checks, incidents, metrics, mock_targets, servers
 from app.schemas import HealthResponse
 from app.services.scheduler import run_scheduled_checks
@@ -15,16 +16,15 @@ from app.services.scheduler import run_scheduled_checks
 # 로깅 초기화
 setup_logging()
 logger = get_logger(__name__)
-
-# DB 테이블 생성
-Base.metadata.create_all(bind=engine)
 logger.info("APP_STARTED | %s v%s", settings.APP_NAME, settings.APP_VERSION)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """앱 시작/종료 시 실행되는 lifespan 이벤트."""
-    # 시작: 백그라운드 스케줄러 등록
+    # DB 테이블 생성 (테스트 시 _db.engine이 교체되면 테스트 엔진에 생성됨)
+    Base.metadata.create_all(bind=_db.engine)
+    # 백그라운드 스케줄러 등록
     task = asyncio.create_task(run_scheduled_checks())
     logger.info("SCHEDULER_REGISTERED | interval=%ds", settings.CHECK_INTERVAL_SECONDS)
     yield
