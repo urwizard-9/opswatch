@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from app.core.config import settings
 from app.database import Base, engine
-from app.routers import servers
+from app.routers import mock_targets, servers
 from app.schemas import HealthResponse
 
 # DB 테이블 생성
@@ -19,6 +19,7 @@ app = FastAPI(
 
 # 라우터 등록
 app.include_router(servers.router)
+app.include_router(mock_targets.router)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["Operation"])
