@@ -7,7 +7,10 @@ from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
+from app.core.logging_config import get_logger
 from app.models import Incident
+
+logger = get_logger(__name__)
 
 
 def create_incident_if_needed(
@@ -35,6 +38,7 @@ def create_incident_if_needed(
     )
 
     if existing:
+        logger.info("INCIDENT_DUPLICATE_SKIPPED | server_id=%d | 기존 OPEN Incident #%d", server_id, existing.id)
         return None
 
     incident = Incident(
@@ -46,6 +50,7 @@ def create_incident_if_needed(
     db.add(incident)
     db.commit()
     db.refresh(incident)
+    logger.warning("INCIDENT_CREATED | id=%d | server_id=%d | reason=%s", incident.id, server_id, reason)
     return incident
 
 
@@ -69,4 +74,5 @@ def resolve_incident(
     incident.resolved_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(incident)
+    logger.info("INCIDENT_RESOLVED | id=%d | server_id=%d | action=%s", incident.id, incident.server_id, action_taken)
     return incident

@@ -8,6 +8,9 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Server
 from app.schemas import ServerCreate, ServerResponse, ServerUpdate
+from app.core.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 router = APIRouter(prefix="/servers", tags=["Servers"])
 
@@ -32,6 +35,7 @@ def create_server(server_data: ServerCreate, db: Session = Depends(get_db)):
     db.add(server)
     db.commit()
     db.refresh(server)
+    logger.info("SERVER_CREATED | id=%d | name=%s | url=%s", server.id, server.name, server.url)
     return server
 
 
@@ -80,3 +84,4 @@ def delete_server(server_id: int, db: Session = Depends(get_db)):
 
     db.delete(server)
     db.commit()
+    logger.info("SERVER_DELETED | id=%d | name=%s", server.id, server.name)

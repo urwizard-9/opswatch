@@ -3,12 +3,18 @@
 from fastapi import FastAPI
 
 from app.core.config import settings
+from app.core.logging_config import get_logger, setup_logging
 from app.database import Base, engine
 from app.routers import checks, incidents, mock_targets, servers
 from app.schemas import HealthResponse
 
+# 로깅 초기화
+setup_logging()
+logger = get_logger(__name__)
+
 # DB 테이블 생성
 Base.metadata.create_all(bind=engine)
+logger.info("APP_STARTED | %s v%s", settings.APP_NAME, settings.APP_VERSION)
 
 # FastAPI 인스턴스 생성
 app = FastAPI(

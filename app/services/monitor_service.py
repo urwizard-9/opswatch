@@ -8,6 +8,9 @@ import time
 import httpx
 
 from app.core.config import settings
+from app.core.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 def check_server(url: str) -> dict:
@@ -36,14 +39,17 @@ def check_server(url: str) -> dict:
             status = "DOWN"
             message = f"HTTP {response.status_code} 오류"
 
-        return {
+        result = {
             "status": status,
             "status_code": response.status_code,
             "response_time_ms": round(elapsed_ms, 2),
             "message": message,
         }
+        logger.info("SERVER_%s | url=%s | %dms | HTTP %d", status, url, elapsed_ms, response.status_code)
+        return result
 
     except httpx.TimeoutException:
+        logger.warning("SERVER_DOWN | url=%s | Timeout (%d초 초과)", url, settings.CHECK_TIMEOUT_SECONDS)
         return {
             "status": "DOWN",
             "status_code": None,
@@ -51,6 +57,7 @@ def check_server(url: str) -> dict:
             "message": f"Timeout ({settings.CHECK_TIMEOUT_SECONDS}초 초과)",
         }
     except httpx.ConnectError:
+        logger.warning("SERVER_DOWN | url=%s | 연결 실패", url)
         return {
             "status": "DOWN",
             "status_code": None,
@@ -58,6 +65,7 @@ def check_server(url: str) -> dict:
             "message": "연결 실패 (서버 접근 불가)",
         }
     except Exception as e:
+        logger.exception("SERVER_CHECK_FAILED | url=%s | %s", url, e)
         return {
             "status": "DOWN",
             "status_code": None,

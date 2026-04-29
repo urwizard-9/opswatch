@@ -44,3 +44,10 @@ async def mock_random():
         status_code=500,
         content={"status": "error", "message": "random status generated"},
     )
+
+
+@router.get("/crash")
+async def mock_crash():
+    """의도적 예외 발생. logger.exception traceback 테스트용."""
+    msg = "의도적 서버 크래시 시뮬레이션"
+    raise RuntimeError(msg)
