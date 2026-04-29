@@ -30,7 +30,7 @@ async def run_scheduled_checks() -> None:
 
         db = SessionLocal()
         try:
-            servers = db.query(Server).filter(Server.is_active == True).all()
+            servers = db.query(Server).filter(Server.is_active == True).all()  # noqa: E712
             if not servers:
                 logger.info("SCHEDULER_SKIP | 활성 서버 없음")
                 continue

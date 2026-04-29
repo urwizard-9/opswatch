@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s       # 15초마다 스크레이프
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "opswatch"
+    static_configs:
+      - targets: ["opswatch:8000"]   # Docker Compose 서비스명
+    metrics_path: /metrics

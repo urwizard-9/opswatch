@@ -1,0 +1,16 @@
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = [
+    "E501",  # 줄 길이 (docstring 예외 허용)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["F401"]  # 테스트 파일 미사용 임포트 허용
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "strict"

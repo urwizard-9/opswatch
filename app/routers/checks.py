@@ -56,7 +56,7 @@ def run_check_single(server_id: int, db: Session = Depends(get_db)):
 @router.post("/run", response_model=CheckRunAllResponse)
 def run_check_all(db: Session = Depends(get_db)):
     """활성화된 전체 서버를 점검합니다."""
-    servers = db.query(Server).filter(Server.is_active == True).all()
+    servers = db.query(Server).filter(Server.is_active == True).all()  # noqa: E712
     if not servers:
         raise HTTPException(status_code=404, detail="활성 서버가 없습니다")
 

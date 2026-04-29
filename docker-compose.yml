@@ -1,0 +1,61 @@
+services:
+
+  # ── OpsWatch FastAPI 서비스 ──
+  opswatch:
+    build: .
+    container_name: opswatch
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: sqlite:///./opswatch.db
+      CHECK_INTERVAL_SECONDS: 60
+      LOG_LEVEL: INFO
+    volumes:
+      - opswatch_data:/app/data     # DB 영속성
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ── Prometheus ──
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    restart: unless-stopped
+    depends_on:
+      - opswatch
+
+  # ── Grafana ──
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: opswatch123   # 초기 비밀번호 (변경 권장)
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+volumes:
+  opswatch_data:
+  prometheus_data:
+  grafana_data:

@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+.env.*
+opswatch.db
+.pytest_cache/
+.coverage
+htmlcov/
+tests/
+*.md
+.gitignore
+.git/
+prometheus/
+grafana/
+docker-compose*.yml
