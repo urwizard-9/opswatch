@@ -5,10 +5,10 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.core.logging_config import get_logger
 from app.database import get_db
 from app.models import Server
 from app.schemas import ServerCreate, ServerResponse, ServerUpdate
-from app.core.logging_config import get_logger
 
 logger = get_logger(__name__)
 

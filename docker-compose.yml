@@ -26,7 +26,7 @@ services:
     image: prom/prometheus:latest
     container_name: prometheus
     ports:
-      - "9090:9090"
+      - "19090:9090"   # Windows 9000-9599 예약 범위 회피
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -44,7 +44,7 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3000:3000"
+      - "13000:3000"   # Windows 예약 포트 안전 범위
     environment:
       GF_SECURITY_ADMIN_PASSWORD: opswatch123   # 초기 비밀번호 (변경 권장)
       GF_USERS_ALLOW_SIGN_UP: "false"

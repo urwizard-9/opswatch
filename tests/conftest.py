@@ -8,7 +8,7 @@ import os
 
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
-from sqlalchemy import create_engine, StaticPool  # noqa: E402
+from sqlalchemy import StaticPool, create_engine  # noqa: E402
 from sqlalchemy.orm import sessionmaker  # noqa: E402
 
 # ── StaticPool: 모든 연결이 동일한 인메모리 DB를 공유 ──

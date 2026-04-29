@@ -40,6 +40,7 @@ def test_metrics_counter_increments_after_check(client):
     # monitor_service 전체를 패치하지 않고 실제 check_server가 메트릭 업데이트까지 실행하도록
     # httpx 요청만 mock해서 DOWN 응답 시뮬레이션
     from unittest.mock import MagicMock
+
     import httpx
 
     mock_response = MagicMock()
@@ -67,9 +68,10 @@ def test_mock_error(client):
 def test_mock_crash(client):
     """GET /mock/crash → 500 (RuntimeError 발생)."""
     # /mock/crash는 의도적 예외를 발생하므로 raise_server_exceptions=False로 호출
-    from app.main import app
     from fastapi.testclient import TestClient
+
     from app.database import get_db
+    from app.main import app
     from tests.conftest import override_get_db
     app.dependency_overrides[get_db] = override_get_db
     with TestClient(app, raise_server_exceptions=False) as crash_client:

@@ -1,6 +1,5 @@
 """OpsWatch 설정 관리 모듈."""
 
-import os
 
 from pydantic_settings import BaseSettings
 
@@ -26,7 +25,7 @@ class Settings(BaseSettings):
     SLOW_THRESHOLD_SECONDS: int = 2
     CHECK_INTERVAL_SECONDS: int = 60
 
-    # GitHub Issue 자동 생성 
+    # GitHub Issue 자동 생성
     ENABLE_GITHUB_ISSUE: bool = False
     GH_REPO: str = ""
     GH_TOKEN: str = ""
