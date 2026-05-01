@@ -4,6 +4,7 @@ global:
 
 scrape_configs:
   - job_name: "opswatch"
+    scheme: https                                    # Render는 HTTPS
     static_configs:
-      - targets: ["opswatch:8000"]   # Docker Compose 서비스명
+      - targets: ["opswatch-r42u.onrender.com"]      # Render 운영 서버
     metrics_path: /metrics
