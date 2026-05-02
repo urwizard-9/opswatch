@@ -14,18 +14,12 @@ from app.routers.metrics import update_check_metrics
 logger = get_logger(__name__)
 
 
-def check_server(url: str) -> dict:
-    """단일 서버의 상태를 점검합니다.
-
-    Args:
-        url: 점검 대상 서버의 URL
-
-    Returns:
-        dict: status, status_code, response_time_ms, message 포함
-    """
+async def check_server(url: str) -> dict:
+    """단일 서버의 상태를 점검합니다."""
     try:
         start = time.time()
-        response = httpx.get(url, timeout=settings.CHECK_TIMEOUT_SECONDS)
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, timeout=settings.CHECK_TIMEOUT_SECONDS)
         elapsed_ms = (time.time() - start) * 1000
 
         # 상태 판별
@@ -80,4 +74,5 @@ def check_server(url: str) -> dict:
         }
         update_check_metrics("DOWN", None)
         return result
+
 

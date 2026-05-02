@@ -43,7 +43,7 @@ async def run_scheduled_checks() -> None:
             now = datetime.now(timezone.utc)
 
             for server in servers:
-                result = check_server(server.url)
+                result = await check_server(server.url)
                 results.append(result)
 
                 # DB에 점검 결과 저장

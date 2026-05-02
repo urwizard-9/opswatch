@@ -15,7 +15,7 @@ router = APIRouter(prefix="/checks", tags=["Checks"])
 
 
 @router.post("/run/{server_id}", response_model=CheckRunResponse)
-def run_check_single(server_id: int, db: Session = Depends(get_db)):
+async def run_check_single(server_id: int, db: Session = Depends(get_db)):
     """특정 서버 1대를 점검합니다."""
     server = db.query(Server).filter(Server.id == server_id).first()
     if not server:
@@ -23,7 +23,7 @@ def run_check_single(server_id: int, db: Session = Depends(get_db)):
     if not server.is_active:
         raise HTTPException(status_code=400, detail="비활성 서버는 점검할 수 없습니다")
 
-    result = check_server(server.url)
+    result = await check_server(server.url)
     now = datetime.now(timezone.utc)
 
     # DB에 점검 결과 저장
@@ -54,7 +54,7 @@ def run_check_single(server_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/run", response_model=CheckRunAllResponse)
-def run_check_all(db: Session = Depends(get_db)):
+async def run_check_all(db: Session = Depends(get_db)):
     """활성화된 전체 서버를 점검합니다."""
     servers = db.query(Server).filter(Server.is_active == True).all()  # noqa: E712
     if not servers:
@@ -64,7 +64,7 @@ def run_check_all(db: Session = Depends(get_db)):
     now = datetime.now(timezone.utc)
 
     for server in servers:
-        result = check_server(server.url)
+        result = await check_server(server.url)
 
         # DB에 점검 결과 저장
         check_record = CheckResult(
